@@ -9,3 +9,7 @@ Flask-CORS
 
 # For PDF
 PyMuPDF
+
+# For Vid to Audio
+moviepy
+# ffmpeg # Don't know why
