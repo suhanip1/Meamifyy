@@ -48,4 +48,40 @@ chat_completion = client.chat.completions.create(
 )
 
 # Print the response
-print(chat_completion.choices[0].message.content)
+# print(chat_completion.choices[0].message.content)
+
+output = chat_completion.choices[0].message.content
+
+def parse_api_response(api_response):
+    sections = api_response.strip().split('\n\n')
+    cards = []
+    for section in sections:
+        lines = section.split('\n')
+        if len(lines) >= 6:
+            # Extract the joke number and content, and use them to form the new key
+            joke_number = lines[0].split(' ')[1].strip(':')
+            joke_content = lines[0].split(': ')[1]
+            
+            # Extract the question number and content, and use them to form the new key
+            question_number = lines[1].split(' ')[1].strip(':')
+            question_content = lines[1].split(': ')[1]
+
+            # Extract the options and answer
+            options = {lines[i].split(':')[0].strip(): lines[i].split(':')[1].strip() for i in range(2, 6)}
+            answer = lines[6].replace('Answer: ', '').strip()
+
+            # Form the dictionary with the new key format
+            cards.append({
+                f'joke {joke_number}': joke_content,
+                f'question {question_number}': question_content,
+                'options': options,
+                'answer': answer
+            })
+    return cards
+
+# Use the function to parse the API response
+list1 = parse_api_response(output)
+
+# Example of printing the result to check
+for card in list1:
+    print(card)
