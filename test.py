@@ -21,4 +21,4 @@ transcript = transcriber.transcribe(FILE_URL)
 if transcript.status == aai.TranscriptStatus.error:
     print(transcript.error)
 else:
-    print(transcript.text)
+    transcriptFinal = transcript.text
