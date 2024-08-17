@@ -6,7 +6,6 @@
 
 import assemblyai as aai
 
-
 # Replace with your API key
 aai.settings.api_key = "fa8cefbc5ba04453bea8c7216c7e7772"
 

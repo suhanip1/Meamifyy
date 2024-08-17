@@ -1,0 +1,4 @@
+assemblyai
+flask
+jsonify
+flask-CORS
