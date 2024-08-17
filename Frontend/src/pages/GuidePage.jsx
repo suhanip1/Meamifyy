@@ -60,4 +60,4 @@ const GuidePage = () => {
   );
 };
 
-export default Memefy;
+export default GuidePage;
