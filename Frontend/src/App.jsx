@@ -14,24 +14,24 @@ import {
 function App() {
   const [count, setCount] = useState(0)
 
-  const fetchAPI = async () => {
-    const response = await axios.get("http://localhost:8080/api/users")
-    console.log(response.data.users);
-    try {
-      const response = await axios.post('http://localhost:8080/api/users', {
-        username: "username4",
-      });
-      setMessage(`User added: ${response.data.username}`);
-      setUsername(''); // Clear the input field
-    } catch (error) {
-      console.error('There was an error adding the user!', error);
-      setMessage('Error adding user');
-    }
-  }
+  // const fetchAPI = async () => {
+  //   const response = await axios.get("http://localhost:8080/api/users")
+  //   console.log(response.data.users);
+  //   try {
+  //     const response = await axios.post('http://localhost:8080/api/users', {
+  //       username: "username4",
+  //     });
+  //     setMessage(`User added: ${response.data.username}`);
+  //     setUsername(''); // Clear the input field
+  //   } catch (error) {
+  //     console.error('There was an error adding the user!', error);
+  //     setMessage('Error adding user');
+  //   }
+  // }
 
-  useEffect(() => {
-    fetchAPI()
-  }, [])
+  // useEffect(() => {
+  //   fetchAPI()
+  // }, [])
 
   return (
     <>
