@@ -81,7 +81,7 @@ def parse_api_response(api_response):
 
 # Use the function to parse the API response
 list1 = parse_api_response(output)
-
+        
 # Example of printing the result to check
 for card in list1:
     print(card)

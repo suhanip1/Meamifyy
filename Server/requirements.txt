@@ -5,3 +5,4 @@ flask-CORS
 Flask-SQLAlchemy
 
 groq
+Flask-CORS
