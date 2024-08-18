@@ -31,7 +31,8 @@ def get_api_response(file_name, pdf_file):
     4. Provide the correct answer
     5. Provide ten of these
     6. The content should be relevant to the entire transcript provided
-    7. Follow this template strictly and add no other symbol or text:
+    7. Please dont repeat any joke again
+    8. Follow this template strictly and add no other symbol or text:
 
     Create ten funny memes for the topic following this exact template from the funniest to least funniest:
 
@@ -43,7 +44,7 @@ def get_api_response(file_name, pdf_file):
     Option 4: {{INSERT CORRECT OR INCORRECT OPTION 4}}  
     Answer: {{INSERT CORRECT OPTION NUMBER}}
 
-    Ensure the jokes and questions are related to the transcript, and include exactly four answer choices with only one correct answer. Follow the template precisely and avoid adding any extra information.
+    Ensure the jokes and questions are related to the transcript, dont repeat any joke, and include exactly four answer choices with only one correct answer. Follow the template precisely and avoid adding any extra information.
     """
 
     # Send the prompt to the API

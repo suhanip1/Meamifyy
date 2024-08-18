@@ -1,4 +1,5 @@
 import requests
+import random
 from testGroqAPI import get_api_output
 from groq import Groq
 
@@ -12,7 +13,6 @@ def get_meme_templates():
     if data['success']:
         memes = data['data']['memes']
         return memes[:100]
-        
     else:
         return None
 
@@ -31,7 +31,7 @@ def generate_meme(template_id, text0, text1):
         return data['data']['url']
     return None
 
-def select_meme_template_using_groq(joke_content, meme_templates):
+def select_meme_template_using_groq(joke_content, meme_templates, used_ids):
     meme_template_info = [(template['name'], template['id']) for template in meme_templates]
     
     prompt = f"""
@@ -42,13 +42,13 @@ def select_meme_template_using_groq(joke_content, meme_templates):
     {', '.join(f"{name} (ID: {id})" for name, id in meme_template_info)}
 
     Which meme template is the most appropriate for the joke content? Respond with the exact template name and ID. 
+    Important! Please don't select the same meme more than once.
     Follow this strict template DO NOT add additional information:
     name: [insert meme name here]
     id: [insert template id here]
     reason: [insert reason for picking]
     """
 
-    # Assuming a valid client setup for the Groq API
     response = client.chat.completions.create(
         messages=[
             {
@@ -60,60 +60,55 @@ def select_meme_template_using_groq(joke_content, meme_templates):
     )
     
     best_template_info = response.choices[0].message.content.strip()
-    return best_template_info
+    name, meme_id = extract_name_and_id(best_template_info)
+
+    # Check if the selected meme ID has been used before
+    if meme_id in used_ids:
+        # Select a random meme template that hasn't been used
+        remaining_templates = [template for template in meme_templates if template['id'] not in used_ids]
+        if remaining_templates:
+            random_template = random.choice(remaining_templates)
+            name = random_template['name']
+            meme_id = random_template['id']
+    
+    # Add the selected meme ID to the used list
+    used_ids.add(meme_id)
+
+    return name, meme_id
 
 def extract_name_and_id(text):
-    # Split the text into lines
     lines = text.split('\n')
-
-    # Initialize variables to hold name and ID
     name = None
     meme_id = None
-
-    # Iterate through each line to find the relevant information
     for line in lines:
         if 'name:' in line:
-            # Extract the name from the line
             name = line.split('name:')[1].strip()
         elif 'id:' in line:
-            # Extract the ID from the line
-            id_part = line.split('id:')[1].strip()
-            meme_id = id_part.strip('[]')  # Remove square brackets if present
-      
-
-    # Return the extracted name and ID if found
-    if name and meme_id:
-        return name, meme_id
-    else:
-        return None
-
+            meme_id = line.split('id:')[1].strip()
+    return name, meme_id
 
 def set_template_ids(file_name, pdf_file):
     api_output = get_api_output(file_name, pdf_file)
 
-    # Ensure that api_output is a string containing the joke content
     if isinstance(api_output, list):
-    # print(api_output)
-        for i in api_output:
-            meme_templates = get_meme_templates()
-            selected_template = select_meme_template_using_groq(i, meme_templates)
-            print(selected_template)
-            name, id = extract_name_and_id(selected_template)
-            i["name"] = name
-            i["id"] = id
+        used_ids = set()  # To track used meme IDs
+        meme_templates = get_meme_templates()
 
-        for i in api_output:
-            joke =  i["joke"].split("?")
-            i["joke"] = joke[0] + "?"
-            i["joke-followUp"] = joke[1]
-            i["url"] = generate_meme(i["id"], i["joke"], i["joke-followUp"])
-            print(i["joke"], i["url"])
+        for joke_data in api_output:
+            joke_content = joke_data["joke"]
+            selected_name, selected_id = select_meme_template_using_groq(joke_content, meme_templates, used_ids)
+            joke_data["name"] = selected_name
+            joke_data["id"] = selected_id
+
+        for joke_data in api_output:
+            joke_parts = joke_data["joke"].split("?")
+            joke_data["joke"] = joke_parts[0] + "?"
+            joke_data["joke-followUp"] = joke_parts[1]
+            joke_data["url"] = generate_meme(joke_data["id"], joke_data["joke"], joke_data["joke-followUp"])
+            print(joke_data["joke"], joke_data["url"])
 
         return api_output
 
     else:
         print("Invalid joke content.")
-
-
-
 
