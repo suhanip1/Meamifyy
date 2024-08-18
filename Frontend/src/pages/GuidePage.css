@@ -1,0 +1,89 @@
+/* body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #e8ebf0;
+    border-bottom: 2px solid #ccc;
+  }
+  
+  .header .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #6aa6b6;
+  }
+  
+  .header .nav {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .header .nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .step {
+    margin: 40px 0;
+  }
+  
+  .step h2 {
+    font-size: 24px;
+    color: #f5ba56;
+    margin-bottom: 20px;
+  }
+  
+  .content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px solid #e8ebf0;
+    background-color: #f5f5f5;
+  }
+  
+  .content img {
+    max-width: 100px;
+    margin-right: 20px;
+  }
+  
+  .content p {
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .step2-content {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .step2-content .item {
+    text-align: center;
+    flex: 1;
+  }
+  
+  .step2-content .item img {
+    max-width: 80px;
+    margin-bottom: 10px;
+  }
+  
+  .step2-content .item p {
+    font-size: 14px;
+  }
+   */

@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash, generate_password_hash
 import os
 from vidToAud import process_conversion, convert_video_to_audio
 
@@ -21,9 +22,11 @@ db = SQLAlchemy(app)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
 
     def __repr__(self):
+        return f'<User {self.email}>'
         return f'<User {self.username}>'
 
 class File(db.Model):
@@ -34,25 +37,40 @@ class File(db.Model):
     def __repr__(self):
         return f'<File {self.filename}>'
 
-class MemeTemplate(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    url = db.Column(db.String(255), nullable=False)
-
-    def __repr__(self):
-        return f'<MemeTemplate {self.name}>'
-
 @app.route('/api/users', methods=['GET'])
 def get_users():
     users = User.query.all()
-    return jsonify([{'id': user.id, 'username': user.username} for user in users])
+    return jsonify([{'id': user.id, 'email': user.email} for user in users])
 
 @app.route('/api/users', methods=['POST'])
 def add_user():
     data = request.get_json()
-    new_user = User(username=data['username'])
+    
+    email = data.get('email')
+    password = data.get('password')
+ 
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({'message': 'User already exists'}), 400
+
+    hashed_password = generate_password_hash(password)
+    new_user = User(email=email, password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
+    return jsonify({'message': 'User created successfully'}), 201
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+    if user and check_password_hash(user.password, password):
+        return jsonify({'message': 'Login successful'}), 200
+    return jsonify({'message': 'Invalid credentials'}), 401
+
+if __name__ == '__main__':
     return jsonify({'id': new_user.id, 'username': new_user.username}), 201
 
 def parse_api_response(api_response):
