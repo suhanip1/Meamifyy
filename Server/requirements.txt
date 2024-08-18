@@ -5,3 +5,12 @@ flask-CORS
 Flask-SQLAlchemy
 
 groq
+Flask-CORS
+
+# For PDF
+PyMuPDF
+
+# For Vid to Audio
+moviepy
+ffmpeg 
+# brew install ffmpeg
