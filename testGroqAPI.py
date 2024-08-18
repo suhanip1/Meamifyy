@@ -1,6 +1,9 @@
 from groq import Groq
 from test import transcriptFinal
 import re
+import requests
+
+transcriptFinal = "binary trees"
 
 api_key = "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"
 client = Groq(api_key=api_key)
@@ -66,8 +69,8 @@ def parse_api_response(api_response):
 
                 # Form the dictionary with the new key format
                 cards.append({
-                    f'joke {joke_number}': joke_content,
-                    f'question {question_number}': question_content,
+                    f'joke': joke_content,
+                    f'question': question_content,
                     'options': options,
                     'answer': answer
                 })
@@ -88,6 +91,3 @@ for attempt in range(max_retries):
     else:
         if len(api_output) > 0: 
             break
-
-
-

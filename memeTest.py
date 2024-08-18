@@ -5,37 +5,55 @@ from groq import Groq
 api_key = "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"
 client = Groq(api_key=api_key)
 
-# API endpoint for fetching meme templates
-url = "https://api.imgflip.com/get_memes"
-response = requests.get(url)
-data = response.json()
 
 
-if data['success']:
-    memes = data['data']['memes']
-    meme_templates = memes[:100]
-    
-    #for idx, meme in enumerate(meme_templates):
-       # print(f"{idx + 1}. ID: {meme['id']}, Name: {meme['name']}, URL: {meme['url']}")
-else:
-    print("Failed to fetch memes.")
+def get_meme_templates():
+    url = "https://api.imgflip.com/get_memes"
+    response = requests.get(url)
+    data = response.json()
+    if data['success']:
+        memes = data['data']['memes']
+        return memes[:100]
+        
+    else:
+        return None
 
+
+meme_templates = get_meme_templates()
+
+def generate_meme(template_id, text0, text1):
+    url = "https://api.imgflip.com/caption_image"
+    params = {
+        'template_id': template_id,
+        'username': 'memeify23',  
+        'password': 'memeify12',  
+        'text0': text0,
+        'text1': text1
+    }
+    response = requests.post(url, data=params)
+    data = response.json()
+    if data['success']:
+        return data['data']['url']
+    return None
 
 def select_meme_template_using_groq(joke_content, meme_templates):
     # Prepare the input for the Groq API
-    meme_template_names = [template['name'] for template in meme_templates]
+    meme_template_info = [(template['name'], template['id']) for template in meme_templates]
+    
+    # Format the prompt with meme template names and IDs
     prompt = f"""
     Given the following joke content:
     "{joke_content}"
     
-    And the following meme templates:
-    {', '.join(meme_template_names)}
+    And the following meme templates with corresponding IDs:
+    {', '.join(f"{name} (ID: {id})" for name, id in meme_template_info)}
 
-    Which meme template is the most appropriate for the joke content? Respond with the exact template name and id.
-    follow this strict template DO NOT add additional information
+    Which meme template is the most appropriate for the joke content? Respond with the exact template name and ID. 
+    Try and have different memes for all 10, try to find memes that only require top and bottom text
+    Follow this strict template DO NOT add additional information:
     name: [insert meme name here]
-    id: [insert template id]
-    reason: [insert reason of picking]
+    id: [insert template id here]
+    reason: [insert reason for picking]
     """
 
     # Assuming a valid client setup for the Groq API
@@ -49,10 +67,8 @@ def select_meme_template_using_groq(joke_content, meme_templates):
         model="llama3-8b-8192",
     )
     
-    best_template_name = response.choices[0].message.content.strip()
-    return best_template_name
-
-
+    best_template_info = response.choices[0].message.content.strip()
+    return best_template_info
 
 def extract_name_and_id(text):
     # Split the text into lines
@@ -71,12 +87,14 @@ def extract_name_and_id(text):
             # Extract the ID from the line
             id_part = line.split('id:')[1].strip()
             meme_id = id_part.strip('[]')  # Remove square brackets if present
+      
 
     # Return the extracted name and ID if found
     if name and meme_id:
         return name, meme_id
     else:
         return None
+
 
 # Ensure that api_output is a string containing the joke content
 if isinstance(api_output, list):
@@ -86,9 +104,17 @@ if isinstance(api_output, list):
         name, id = extract_name_and_id(selected_template)
         i["name"] = name
         i["id"] = id
-        #print(f"Selected Meme Template: {selected_template}")
-        print(f"name: {name}, id: {id} tesstt ", i["name"])
-        break
+
+    for i in api_output:
+        joke =  i["joke"].split("?")
+        i["joke"] = joke[0] + "?"
+        i["joke-followUp"] = joke[1]
+        i["url"] = generate_meme(i["id"], i["joke"], i["joke-followUp"])
+        print(i["joke"], i["url"])
 
 else:
     print("Invalid joke content.")
+
+
+
+
