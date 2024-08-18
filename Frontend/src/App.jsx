@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import axios from 'axios'
 import UploadPage from './pages/UploadPage'
+import MemeTemplates from './pages/Showmemes'
 import {
   BrowserRouter as Router,
   Route,
@@ -38,6 +39,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/uploadPage" element={<UploadPage />} />
+        <Route path="/showMemes" element={<MemeTemplates />} />
       </Routes>
     </Router>
     

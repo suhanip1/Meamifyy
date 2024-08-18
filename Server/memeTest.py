@@ -1,11 +1,9 @@
 import requests
-from testGroqAPI import api_output
+from testGroqAPI import get_api_output
 from groq import Groq
 
 api_key = "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"
 client = Groq(api_key=api_key)
-
-
 
 def get_meme_templates():
     url = "https://api.imgflip.com/get_memes"
@@ -17,9 +15,6 @@ def get_meme_templates():
         
     else:
         return None
-
-
-meme_templates = get_meme_templates()
 
 def generate_meme(template_id, text0, text1):
     url = "https://api.imgflip.com/caption_image"
@@ -37,10 +32,8 @@ def generate_meme(template_id, text0, text1):
     return None
 
 def select_meme_template_using_groq(joke_content, meme_templates):
-    # Prepare the input for the Groq API
     meme_template_info = [(template['name'], template['id']) for template in meme_templates]
     
-    # Format the prompt with meme template names and IDs
     prompt = f"""
     Given the following joke content:
     "{joke_content}"
@@ -49,7 +42,6 @@ def select_meme_template_using_groq(joke_content, meme_templates):
     {', '.join(f"{name} (ID: {id})" for name, id in meme_template_info)}
 
     Which meme template is the most appropriate for the joke content? Respond with the exact template name and ID. 
-    Try and have different memes for all 10, try to find memes that only require top and bottom text
     Follow this strict template DO NOT add additional information:
     name: [insert meme name here]
     id: [insert template id here]
@@ -96,24 +88,31 @@ def extract_name_and_id(text):
         return None
 
 
-# Ensure that api_output is a string containing the joke content
-if isinstance(api_output, list):
-   # print(api_output)
-    for i in api_output:
-        selected_template = select_meme_template_using_groq(i, meme_templates)
-        name, id = extract_name_and_id(selected_template)
-        i["name"] = name
-        i["id"] = id
+def set_template_ids(file_name):
+    api_output = get_api_output(file_name)
 
-    for i in api_output:
-        joke =  i["joke"].split("?")
-        i["joke"] = joke[0] + "?"
-        i["joke-followUp"] = joke[1]
-        i["url"] = generate_meme(i["id"], i["joke"], i["joke-followUp"])
-        print(i["joke"], i["url"])
+    # Ensure that api_output is a string containing the joke content
+    if isinstance(api_output, list):
+    # print(api_output)
+        for i in api_output:
+            meme_templates = get_meme_templates()
+            selected_template = select_meme_template_using_groq(i, meme_templates)
+            print(selected_template)
+            name, id = extract_name_and_id(selected_template)
+            i["name"] = name
+            i["id"] = id
 
-else:
-    print("Invalid joke content.")
+        for i in api_output:
+            joke =  i["joke"].split("?")
+            i["joke"] = joke[0] + "?"
+            i["joke-followUp"] = joke[1]
+            i["url"] = generate_meme(i["id"], i["joke"], i["joke-followUp"])
+            print(i["joke"], i["url"])
+
+        return api_output
+
+    else:
+        print("Invalid joke content.")
 
 
 

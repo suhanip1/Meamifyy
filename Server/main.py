@@ -2,19 +2,17 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import os
+import requests
+from memeTest import set_template_ids
 
 app = Flask(__name__)
-
-# Enable CORS for all routes
 CORS(app, origins='*')
 
-# Configure the SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Define a model for User
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -22,7 +20,6 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
-# Define a model for File
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(120), nullable=False)
@@ -30,6 +27,14 @@ class File(db.Model):
 
     def __repr__(self):
         return f'<File {self.filename}>'
+
+class MemeTemplate(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    url = db.Column(db.String(255), nullable=False)
+
+    def __repr__(self):
+        return f'<MemeTemplate {self.name}>'
 
 @app.route('/api/users', methods=['GET'])
 def get_users():
@@ -81,12 +86,10 @@ def upload_file():
         return jsonify({'error': 'No selected file'}), 400
     
     if file and file.filename.endswith('.mp3'):
-        # Save file to the filesystem (optional, can be removed)
         filename = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(filename)
         file_url = f'/files/{file.filename}'
         
-        # Save file metadata to the database
         new_file = File(filename=file.filename, file_url=file_url)
         db.session.add(new_file)
         db.session.commit()
@@ -104,7 +107,32 @@ def get_files():
     files = File.query.all()
     return jsonify([{'id': file.id, 'filename': file.filename, 'file_url': file.file_url} for file in files])
 
-# Create the database tables
+
+@app.route('/api/memes', methods=['GET'])
+def get_memes():
+    memes = MemeTemplate.query.all()
+    return jsonify([{'id': meme.id, 'name': meme.name, 'url': meme.url} for meme in memes])
+
+@app.route('/api/memify', methods=['GET'])
+def memify():
+    file_name = request.args.get('file_name')
+    templates = set_template_ids(file_name)
+    return jsonify([
+        {
+            'joke_id': template['id'],
+            'joke': template['joke'],
+            'joke_follow_up': template['joke-followUp'],
+            'question': template['question'],
+            'option_1': template['options']['Option 1'],
+            'option_2': template['options']['Option 2'],
+            'option_3': template['options']['Option 3'],
+            'option_4': template['options']['Option 4'],
+            'answer': template['answer'],
+            'name': template['name'],
+            'url': template['url']
+        } for template in templates
+    ])
+
 with app.app_context():
     db.create_all()
 
