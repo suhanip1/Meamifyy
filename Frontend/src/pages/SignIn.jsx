@@ -12,12 +12,12 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,17 +26,15 @@ export default function SignIn() {
     const password = data.get('password');
 
     try {
-      const response = await fetch('http://localhost:8080/api/login', { // Adjust URL if needed
+      const response = await fetch('http://localhost:8080/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
-        // Handle successful login
-        navigate('/homepage'); // Redirect to the home page or dashboard
+        navigate('/homepage');
       } else {
-        // Handle errors (e.g., show an error message)
         const result = await response.json();
         alert(result.message || 'Login failed, please try again.');
       }
@@ -48,7 +46,7 @@ export default function SignIn() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="xs" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}> {/* Added alignment here */}
         <CssBaseline />
         <Box
           sx={{
@@ -56,6 +54,7 @@ export default function SignIn() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            width: '100%',  /* Ensure the box takes full width */
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -64,7 +63,7 @@ export default function SignIn() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}> {/* Ensure form takes full width */}
             <TextField
               margin="normal"
               required
@@ -112,7 +111,7 @@ export default function SignIn() {
           </Box>
         </Box>
         <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 8, mb: 4 }}>
-          {'Copyright © '}
+          {'Copyright © Memeify '}
           <Link color="inherit" href="https://mui.com/">
             Your Website
           </Link>{' '}
