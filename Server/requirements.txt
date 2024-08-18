@@ -12,4 +12,5 @@ PyMuPDF
 
 # For Vid to Audio
 moviepy
-# ffmpeg # brew install ffmpeg
+ffmpeg 
+# brew install ffmpeg

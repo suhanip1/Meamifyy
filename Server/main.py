@@ -2,6 +2,12 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import os
+from vidToAud import process_conversion, convert_video_to_audio
+
+from pdfFetch import extract_text_from_pdf
+
+
+
 import requests
 from memeTest import set_template_ids
 
@@ -76,8 +82,9 @@ def get_cards():
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
+# Uploading pdfs
+@app.route('/upload_pdf', methods=['POST'])
+def upload_pdf():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     
@@ -85,18 +92,72 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     
-    if file and file.filename.endswith('.mp3'):
+    if file and file.filename.endswith('.pdf'):
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+        file.save(file_path)
+        
+        # Extract text from the uploaded PDF
+        transcript = extract_text_from_pdf(file_path)
+        
+        # Optionally, you can delete the file after processing
+        os.remove(file_path)
+        
+        return jsonify({'transcript': transcript}), 200
+    
+    return jsonify({'error': 'Invalid file type. Please upload a PDF file.'}), 400
+
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    accepted_formats = ['.mp3', '.wav', '.ogg', '.m4a', '.mp4', '.mov', '.avi', '.mkv', '.flv']
+
+    # Check if the file extension is in the list of accepted formats
+    if file and any(file.filename.endswith(ext) for ext in accepted_formats):
+        # Save file to the filesystem
         filename = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(filename)
         file_url = f'/files/{file.filename}'
-        
+
+        if any(file.filename.endswith(ext) for ext in ['.mp4', '.mov', '.avi', '.mkv', '.flv']):
+            audio_filename = f"{os.path.splitext(file.filename)[0]}.mp3"
+            audio_path = os.path.join(UPLOAD_FOLDER, audio_filename)
+            convert_video_to_audio(filename, audio_path)
+            file_url = f'/files/{audio_filename}'
+
         new_file = File(filename=file.filename, file_url=file_url)
         db.session.add(new_file)
         db.session.commit()
-        
+
         return jsonify({'message': 'File successfully uploaded', 'file_url': file_url}), 200
-    
+
     return jsonify({'error': 'Invalid file type'}), 400
+
+@app.route('/api/videos', methods=['GET'])
+def get_videos():
+    video_files = [f for f in os.listdir(UPLOAD_FOLDER) if f.endswith(('.mp4', '.mov', '.avi', '.mkv', '.flv'))]
+    return jsonify(video_files)
+
+@app.route('/convert', methods=['POST'])
+def convert_video():
+    data = request.get_json()
+    video_filename = data.get('video')
+    if not video_filename:
+        return jsonify({'error': 'No video selected'}), 400
+    
+    video_path = os.path.join(UPLOAD_FOLDER, video_filename)
+    audio_filename = f"{os.path.splitext(video_filename)[0]}.mp3"
+    audio_path = os.path.join(UPLOAD_FOLDER, audio_filename)
+    
+    process_conversion(video_path, audio_path)
+    
+    return jsonify({'message': 'Conversion completed!', 'audio_file': audio_filename})
 
 @app.route('/files/<filename>')
 def get_file(filename):
