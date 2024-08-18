@@ -3,48 +3,42 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import Link from '@mui/material/Link';
+import { useNavigate } from 'react-router-dom';
 
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const firstName = data.get('firstName');
-    const lastName = data.get('lastName');
     const email = data.get('email');
     const password = data.get('password');
 
     try {
-      const response = await fetch('http://localhost:8080/api/users', { // Adjust URL if needed
+      const response = await fetch('http://localhost:8080/api/signup', { // Adjust URL if needed
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }), // Adjust request body if needed
+        body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
-        // Handle successful sign-up
         navigate('/signin'); // Redirect to the sign-in page after successful sign-up
       } else {
-        // Handle errors (e.g., show an error message)
         const result = await response.json();
-        alert(result.message || 'Sign Up failed');
+        alert(result.message || 'Sign-up failed, please try again.');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An unexpected error occurred, please try again');
+      alert('An unexpected error occurred, please try again.');
     }
   };
 
@@ -58,6 +52,8 @@ export default function SignUp() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            justifyContent: 'center', // Added to center items vertically
+            minHeight: '100vh', // Takes full viewport height
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -66,37 +62,17 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 3, width: '100%' }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="given-name"
-                  name="firstName"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
-                />
-              </Grid>
               <Grid item xs={12}>
                 <TextField
+                  autoComplete="email"
+                  name="email"
                   required
                   fullWidth
                   id="email"
                   label="Email Address"
-                  name="email"
-                  autoComplete="email"
+                  autoFocus
                 />
               </Grid>
               <Grid item xs={12}>
@@ -108,12 +84,6 @@ export default function SignUp() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
                 />
               </Grid>
             </Grid>
@@ -134,8 +104,8 @@ export default function SignUp() {
             </Grid>
           </Box>
         </Box>
-        <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 5 }}>
-          {'Copyright © '}
+        <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 8, mb: 4 }}>
+          {'Copyright © Memify '}
           <Link color="inherit" href="https://mui.com/">
             Your Website
           </Link>{' '}
