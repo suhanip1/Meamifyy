@@ -88,8 +88,8 @@ def extract_name_and_id(text):
         return None
 
 
-def set_template_ids(file_name):
-    api_output = get_api_output(file_name)
+def set_template_ids(file_name, pdf_file):
+    api_output = get_api_output(file_name, pdf_file)
 
     # Ensure that api_output is a string containing the joke content
     if isinstance(api_output, list):

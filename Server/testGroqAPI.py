@@ -2,6 +2,7 @@ from groq import Groq
 from speech_to_text import speech_to_text
 import re
 import requests
+from pdfFetch import extract_text_from_pdf
 
 
 api_key = "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"
@@ -9,9 +10,15 @@ client = Groq(api_key=api_key)
 
 
 
-def get_api_response(file_name):
-
-    transcriptFinal = speech_to_text(file_name)
+def get_api_response(file_name, pdf_file):
+    if file_name and pdf_file :
+        transcriptFinal = speech_to_text(file_name) + "/n" + extract_text_from_pdf(pdf_file)
+    elif file_name :
+        transcriptFinal = speech_to_text(file_name)
+    elif pdf_file:
+        transcriptFinal = extract_text_from_pdf(pdf_file)
+    else:
+        transcriptFinal = "Binary Tree"
 
     prompt = f"""
     Using the following transcript:
@@ -85,10 +92,10 @@ def parse_api_response(api_response):
     return cards
 
 
-def get_api_output(file_name):
+def get_api_output(file_name, pdf_file):
     max_retries = 10
     for attempt in range(max_retries):
-        output = get_api_response(file_name)
+        output = get_api_response(file_name, pdf_file)
         api_output = parse_api_response(output)
         if  not (isinstance(api_output, list)):
             print(f"Retrying due to parsing error (Attempt {attempt + 1}/{max_retries})")

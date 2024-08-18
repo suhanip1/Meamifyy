@@ -177,7 +177,8 @@ def get_memes():
 @app.route('/api/memify', methods=['GET'])
 def memify():
     file_name = request.args.get('file_name')
-    templates = set_template_ids(file_name)
+    pdf_file = request.args.get('pdf_file')
+    templates = set_template_ids(file_name, pdf_file)
     return jsonify([
         {
             'joke_id': template['id'],
