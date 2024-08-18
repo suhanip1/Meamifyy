@@ -73,45 +73,72 @@ const UploadPage = () => {
   };
 
   return (
-    <div>
-      <h1>Upload Files</h1>
-      
-      <div>
-        <h2>Upload Audio or Video File</h2>
-        <input 
-          type="file" 
-          accept=".mp3, .wav, .ogg, .m4a, .mp4, .mov, .avi, .mkv, .flv"
-          onChange={handleFileChange}
-        />
-        <button onClick={() => handleUpload('file')}>
-          Upload Audio/Video
-        </button>
-        {uploadStatusAudioVideo === 'success' && <span style={{ color: 'yellow', marginLeft: '10px' }}>✔️</span>}
-        {uploadStatusAudioVideo === 'error' && <span style={{ color: 'red', marginLeft: '10px' }}>❌</span>}
+    <div className="upload-page">
+      <nav className="navbar">
+        <div className="logo">
+          <img src="memelogo.png" alt="Logo" />
+          <span>Memeify.</span>
+        </div>
+        <div className="nav-links">
+          <a href="#home-content">Home</a>
+          <a href="#">Guide</a>
+          <a href="#">Create Quizlet</a>
+          <a href="#">About</a>
+        </div>
+        <div className="button-group">
+          <button>Sign up
+            <div className="arrow-wrapper">
+              <div className="arrow"></div>
+            </div>
+          </button>
+          <button>Login
+            <div className="arrow-wrapper">
+              <div className="arrow"></div>
+            </div>
+          </button>
+        </div>
+      </nav>
 
-        {/* Display the audio player just below the upload section */}
-        {fileUrl && (
-          <div style={{ marginTop: '20px' }}>
-            <audio controls>
-              <source src={`http://localhost:8080${fileUrl}`} type="audio/mp3" />
-              Your browser does not support the audio element.
-            </audio>
-          </div>
-        )}
-      </div>
-      
-      <div style={{ marginTop: '30px' }}>
-        <h2>Upload PDF File</h2>
-        <input 
-          type="file" 
-          accept=".pdf"
-          onChange={handleFileChange}
-        />
-        <button onClick={() => handleUpload('pdf')}>
-          Upload PDF
-        </button>
-        {uploadStatusPDF === 'success' && <span style={{ color: 'green', marginLeft: '10px' }}>✔️</span>}
-        {uploadStatusPDF === 'error' && <span style={{ color: 'red', marginLeft: '10px' }}>❌</span>}
+      <div className="upload-section">
+        <h1>Upload Files</h1>
+        
+        <div className="upload-audio-video">
+          <h2>Upload Audio or Video File</h2>
+          <input 
+            type="file" 
+            accept=".mp3, .wav, .ogg, .m4a, .mp4, .mov, .avi, .mkv, .flv"
+            onChange={handleFileChange}
+          />
+          <button onClick={() => handleUpload('file')}>
+            Upload Audio/Video
+          </button>
+          {uploadStatusAudioVideo === 'success' && <span className="status success">✔️</span>}
+          {uploadStatusAudioVideo === 'error' && <span className="status error">❌</span>}
+
+          {/* Display the audio player just below the upload section */}
+          {fileUrl && (
+            <div className="audio-player">
+              <audio controls>
+                <source src={`http://localhost:8080${fileUrl}`} type="audio/mp3" />
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+          )}
+        </div>
+        
+        <div className="upload-pdf" style={{ marginTop: '30px' }}>
+          <h2>Upload PDF File</h2>
+          <input 
+            type="file" 
+            accept=".pdf"
+            onChange={handleFileChange}
+          />
+          <button onClick={() => handleUpload('pdf')}>
+            Upload PDF
+          </button>
+          {uploadStatusPDF === 'success' && <span className="status success">✔️</span>}
+          {uploadStatusPDF === 'error' && <span className="status error">❌</span>}
+        </div>
       </div>
     </div>
   );
